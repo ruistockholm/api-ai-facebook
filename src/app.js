@@ -262,7 +262,7 @@ app.post('/webhook_apiai/', (req, res) => {
 
     //creating custom payload elements template for pizza webhook example
     var HAWAIIAN_CHICKEN = {
-        title: "HAWAIIAN CHICKEN",
+        title: "HAWAIIAN CHICKENS",
         subtitle: "Chicken meat, juicy pineapples and Mozzarella cheese on tomato pizza sauce.",
         item_url: "https://en.wikipedia.org/wiki/Pizza",
         image_url: "http://www.phdelivery.com.my/i/menu/pizza/pizza_hawaiianchicken.jpg",
