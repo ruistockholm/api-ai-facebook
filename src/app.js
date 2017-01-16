@@ -264,6 +264,7 @@ app.post('/webhook_apiai/', (req, res) => {
     var HAWAIIAN_CHICKEN = {
         "data': {
         "facebook": [
+        {
         title: "HAWAIIAN CHICKEN",
         subtitle: "Chicken meat, juicy pineapples and Mozzarella cheese on tomato pizza sauce.",
         item_url: "https://en.wikipedia.org/wiki/Pizza",
@@ -277,6 +278,7 @@ app.post('/webhook_apiai/', (req, res) => {
             title: "Show HAWAIIAN CHICKEN",
             payload: "HAWAIIAN CHICKEN"
         }]
+}
         ]}
     };
     var CHICKEN_PEPPERONI = {
