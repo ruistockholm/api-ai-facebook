@@ -262,7 +262,7 @@ app.post('/webhook_apiai/', (req, res) => {
 
     //creating custom payload elements template for pizza webhook example
     var HAWAIIAN_CHICKEN = {
-        "data': {
+        "data": {
         "facebook": {
         
         title: "HAWAIIAN CHICKEN",
