@@ -260,25 +260,6 @@ app.post('/webhook_apiai/', (req, res) => {
         }
     };
     
-    
-    "data": {
-"facebook": [
-{
-"text": "Here is a video to watch:"
-},
-{
-"sender_action": "typing_on"
-},
-{
-"attachment": {
-"type": "video",
-"payload": {
-"url": "http://path.to/video.mp4"
-}
-}
-}
-]
-},
 
     //creating custom payload elements template for pizza webhook example
     var HAWAIIAN_CHICKEN = {
