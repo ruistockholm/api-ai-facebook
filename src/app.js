@@ -251,6 +251,8 @@ app.post('/webhook_apiai/', (req, res) => {
 
     //creating custom fb formated message template
     const generic_message = {
+        data: {
+        facebook: {
         attachment: {
             type: "template",
             payload: {
@@ -263,8 +265,7 @@ app.post('/webhook_apiai/', (req, res) => {
 
     //creating custom payload elements template for pizza webhook example
     var HAWAIIAN_CHICKEN = {
-        "data": {
-        "facebook": {
+        
         
         title: "HAWAIIAN CHICKEN",
         subtitle: "Chicken meat, juicy pineapples and Mozzarella cheese on tomato pizza sauce.",
