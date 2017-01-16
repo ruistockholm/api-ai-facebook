@@ -260,6 +260,8 @@ app.post('/webhook_apiai/', (req, res) => {
                 elements: []
             }
         }
+        }
+        }
     };
     
 
