@@ -25,14 +25,18 @@ function processEvent(event) {
         // Handle a text message from this sender
 
         if (!sessionIds.has(sender)) {
-            sessionIds.set(sender, uuid.v1());
+            sessionIds.set(sender, uuid.v4());
         }
 
         console.log("Text", text);
 
         let apiaiRequest = apiAiService.textRequest(text,
             {
-                sessionId: sessionIds.get(sender)
+                sessionId: sessionIds.get(sender),
+                originalRequest: {
+                    data: event,
+                    source: "facebook"
+                }
             });
 
         apiaiRequest.on('response', (response) => {
@@ -50,18 +54,18 @@ function processEvent(event) {
                             sendFBMessage(sender, {text: err.message});
                         }
                     } else {
-                        responseData.facebook.forEach((facebookMessage) => {
+                        async.eachSeries(responseData.facebook, (facebookMessage, callback) => {
                             try {
                                 if (facebookMessage.sender_action) {
                                     console.log('Response as sender action');
-                                    sendFBSenderAction(sender, facebookMessage.sender_action);
+                                    sendFBSenderAction(sender, facebookMessage.sender_action, callback);
                                 }
                                 else {
                                     console.log('Response as formatted message');
-                                    sendFBMessage(sender, facebookMessage);
+                                    sendFBMessage(sender, facebookMessage, callback);
                                 }
                             } catch (err) {
-                                sendFBMessage(sender, {text: err.message});
+                                sendFBMessage(sender, {text: err.message}, callback);
                             }
                         });
                     }
@@ -243,3 +247,4 @@ app.listen(REST_PORT, () => {
 });
 
 doSubscribeRequest();
+
