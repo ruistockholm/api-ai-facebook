@@ -25,27 +25,25 @@ function processEvent(event) {
         // Handle a text message from this sender
 
         if (!sessionIds.has(sender)) {
-            sessionIds.set(sender, uuid.v4());
+            sessionIds.set(sender, uuid.v1());
         }
 
         console.log("Text", text);
 
         let apiaiRequest = apiAiService.textRequest(text,
             {
-                sessionId: sessionIds.get(sender),
-                originalRequest: {
-                    data: event,
-                    source: "facebook"
-                }
+                sessionId: sessionIds.get(sender)
             });
 
-        apiaiRequest.on('response', (response) => {
+       apiaiRequest.on('response', (response) => {
+          
             if (isDefined(response.result)) {
                 let responseText = response.result.fulfillment.speech;
                 let responseData = response.result.fulfillment.data;
                 let action = response.result.action;
 
                 if (isDefined(responseData) && isDefined(responseData.facebook)) {
+                  console.log(responseData.facebook);
                     if (!Array.isArray(responseData.facebook)) {
                         try {
                             console.log('Response as formatted message');
@@ -54,20 +52,10 @@ function processEvent(event) {
                             sendFBMessage(sender, {text: err.message});
                         }
                     } else {
-                        async.eachSeries(responseData.facebook, (facebookMessage, callback) => {
-                            try {
-                                if (facebookMessage.sender_action) {
-                                    console.log('Response as sender action');
-                                    sendFBSenderAction(sender, facebookMessage.sender_action, callback);
-                                }
-                                else {
-                                    console.log('Response as formatted message');
-                                    sendFBMessage(sender, facebookMessage, callback);
-                                }
-                            } catch (err) {
-                                sendFBMessage(sender, {text: err.message}, callback);
-                            }
-                        });
+                       /* responseData.facebook.forEach((facebookMessage) => {
+                            
+                        });*/
+                        sendFbData(sender,responseData.facebook,0)
                     }
                 } else if (isDefined(responseText)) {
                     console.log('Response as text message');
@@ -88,6 +76,67 @@ function processEvent(event) {
     }
 }
 
+function sendLoop(sender,facebookMessage,x,callback){
+                                      
+                                      sendFBMessage(sender, facebookMessage[x],function(){
+                                        x++;
+                                        if(x<facebookMessage.length){
+                                          sendLoop(sender,facebookMessage,x);
+                                        }else{
+                                          
+                              if(callback){           
+                                      callback();
+                                        }
+                                          
+                                        }
+                                        
+                                      });
+                                      
+                               }
+                               
+                              
+ function sendFbData(sender,facebookData,x){
+   
+   try {
+                                if (facebookData[x].sender_action) {
+                                    console.log('Response as sender action');
+                                    sendFBSenderAction(sender, facebookData[x].sender_action,function(){
+                                       x++;
+                                        if(x<facebookData.length){
+                                          sendFbData(sender,facebookData,x);
+                                        }else{
+                                          
+                                          return true;
+                                        }
+                                    });
+                                }
+                                else {
+                                  
+                                     /* facebookMessage.forEach((message)=>{
+                                          console.log('Response as formatted message'+(message.text));
+                                    sendFBMessage(sender, message);
+
+                                      });*/
+                                      
+                                      console.log("sdfsdf"+facebookData[x].length);
+                                      sendLoop(sender,facebookData[x],0,function(){
+                                       x++;
+                                        if(x<facebookData.length){
+                                          sendFbData(sender,facebookData,x);
+                                        }else{
+                                          
+                                          return true;
+                                        }
+                                    });
+   
+                                }
+                            } catch (err) {
+                                sendFBMessage(sender, {text: err.message});
+                            }
+   
+   
+ }                              
+                               
 function splitResponse(str) {
     if (str.length <= 320) {
         return [str];
@@ -138,11 +187,14 @@ function sendFBMessage(sender, messageData, callback) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
+        } else if(response){
+         // console.log("haisdds"+response);
+           if (callback) {
+            callback();
+           }
         }
 
-        if (callback) {
-            callback();
-        }
+       
     });
 }
 
@@ -161,9 +213,10 @@ function sendFBSenderAction(sender, action, callback) {
                 console.log('Error sending action: ', error);
             } else if (response.body.error) {
                 console.log('Error: ', response.body.error);
-            }
+            } else if(response){
             if (callback) {
                 callback();
+            }
             }
         });
     }, 1000);
@@ -183,6 +236,90 @@ function doSubscribeRequest() {
         });
 }
 
+function addGetStartedButton(){
+   request({
+            method: 'POST',
+            json: {
+                    "setting_type":"call_to_actions",
+                    "thread_state":"new_thread",
+                    "call_to_actions":[
+                      {
+                        "payload":"GETTING_STARTED_BUS"
+                      }
+                    ]
+        },
+            uri: "https://graph.facebook.com/v2.6/me/thread_settings?access_token=" + FB_PAGE_ACCESS_TOKEN
+        },
+        (error, response, body) => {
+            if (error) {
+                console.error('Error while configuring getting started: ', error);
+            } else {
+                console.log('Getting started configured: ', response.body);
+            }
+        });
+}
+
+function addPersistentMenu(){
+  
+   request({
+            method: 'POST',
+            "Content-Type": 'application/json',
+             json: {
+                    "setting_type" : "call_to_actions",
+                  "thread_state" : "existing_thread",
+                  "call_to_actions":[
+                    
+                    {
+                      "type":"postback",
+                      "title":"From Adibatla",
+                      "payload":"FROMADIBATLA"
+                    },
+                    {
+                      "type":"postback",
+                      "title":"To Adibatla",
+                      "payload":"TOADIBATLA"
+                    },
+	                   {
+              "type": "web_url",
+              "url": "www.adibatlatransportation.com",
+              "title": "click to visit the site"
+                     }
+                   
+                  ]
+                  },
+            uri: "https://graph.facebook.com/v2.6/me/thread_settings?access_token=" + FB_PAGE_ACCESS_TOKEN
+        },
+        (error, response, body) => {
+            if (error) {
+                console.error('Error while configuring PersistentMenu: ', error);
+            } else {
+                console.log('PersistentMenu configured: ', response.body);
+            }
+        });
+  
+
+}
+
+
+function addGreetingText(){
+   request({
+            method: 'POST',
+            json: {
+                    "setting_type":"greeting",
+                   "greeting":{
+    "text":"Hi {{user_first_name}}, welcome to Adibatla Transportation Bot."
+  }
+        },
+            uri: "https://graph.facebook.com/v2.6/me/thread_settings?access_token=" + FB_PAGE_ACCESS_TOKEN
+        },
+        (error, response, body) => {
+            if (error) {
+                console.error('Error while setting greetings: ', error);
+            } else {
+                console.log('Setting Greetings: ', response.body);
+            }
+        });
+}
 function isDefined(obj) {
     if (typeof obj == 'undefined') {
         return false;
@@ -200,6 +337,7 @@ const app = express();
 app.use(bodyParser.text({type: 'application/json'}));
 
 app.get('/webhook/', (req, res) => {
+//console.log(req);
     if (req.query['hub.verify_token'] == FB_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
 
@@ -213,6 +351,7 @@ app.get('/webhook/', (req, res) => {
 
 app.post('/webhook/', (req, res) => {
     try {
+        console.log(req.body);
         var data = JSONbig.parse(req.body);
 
         if (data.entry) {
@@ -247,4 +386,7 @@ app.listen(REST_PORT, () => {
 });
 
 doSubscribeRequest();
+addGetStartedButton();
+addPersistentMenu();
+addGreetingText();
 
