@@ -319,6 +319,42 @@ function addGreetingText(){
             }
         });
 }
+	
+//
+	function sendFBImage(sender, imageUrl, callback){
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+        method: 'POST',
+        json: {
+            recipient: {id: sender},
+            "message":{
+                "attachment":{
+                    "type":"image",
+                    "payload":{
+                        "url": imageUrl
+                    }
+                }
+            }
+        }
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending image: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+
+        if (callback) {
+            callback();
+        }
+    });
+}
+	//
+	
+	
+	
+	
+	
 function isDefined(obj) {
     if (typeof obj == 'undefined') {
         return false;
