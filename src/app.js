@@ -259,6 +259,50 @@ function addGetStartedButton(){
         });
 }
 
+	
+//	function sendGenericMessage(sender) {
+   // let messageData = {
+      //  "attachment": {
+        //    "type": "template",
+          //  "payload": {
+           //     "template_type": "generic",
+             //   "elements": [{
+              //      "title": "Orangehill Technologies",
+               //     "subtitle": "Software Solutions",
+                //    "image_url": "http://orangehilltech.com/img/logo.png",
+                //    "buttons": [{
+                 //       "type": "web_url",
+                 //       "url": "http://www.orangehilltech.com",
+                //        "title": "Web Url"
+              //      }],
+          //      }]
+      //    }
+     //   }
+   // }
+   // request({
+     //   url: 'https://graph.facebook.com/v2.8/me/messages',
+      //  qs: {access_token: FB_PAGE_ACCESS_TOKEN},
+       // method: 'POST',
+       // json: {
+       //     recipient: {id:sender},
+       //     message: messageData,
+       // }
+   // }, function(error, response, body) {
+   //     if (error) {
+   //         console.log('Error sending messages: ', error)
+     //   } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+    //    }
+  //  })
+//}
+	
+	
+	
+	
+	
+	
+	
+	
 function addPersistentMenu(){
   
    request({
