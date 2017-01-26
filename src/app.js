@@ -348,7 +348,7 @@ function addGreetingText(){
             callback();
         }
     });
-}
+//}
 	//
 	
 	//-----------------------------
